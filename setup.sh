@@ -72,7 +72,31 @@ pretty_import() {
 
 curl_install() {
     url=$1
+    echo "Curl install:" 
+    echo $url
     /bin/bash -c "$(curl -fsSL ${url})"
+}
+
+curl_dpkg() {
+    url=$1
+    echo "Curl install:"
+    echo $url
+    if uname | grep -Eq '^(cygwin|mingw|msys)'; then
+        uuid=$(powershell -NoProfile -Command "[guid]::NewGuid().ToString()")
+    else
+        uuid=$(uuidgen)
+    fi
+    TMPFILE=$(mktemp /tmp/dotfiles."${uuid}".XXXXX.tar.gz) || {
+            error "tempfile error"
+    }
+    curl -s -L -o "$TMPFILE" "$url" || {
+            error "curl error: ${url}"
+    }
+    sudo dpkg -i "$TMPFILE" || {
+        rm -f "$TMPFILE"
+        error "dpkg error"
+    }
+    rm -f "$TMPFILE"
 }
 
 setup_dependencies() {
@@ -152,8 +176,8 @@ setup_devtools() {
     }
     command_exists git-credential-manager-core || {
 	if command_exists dpkg; then
-	    latest_gcm_deb=curl -s  -H "Accept: application/vnd.github.v3+json"   https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest | grep 'url' | grep '.deb' | sed -E 's/^.+?": "(.+?)".+?$/\1/g'
-            curl_install $latest_gcm_deb
+	    url=`curl -sH "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest" | grep "url" | grep ".deb" | sed -E 's/^.+?": "(.+?)".+?$/\1/g'`
+            curl_dpkg $url
 	else
 	    error "Git Credential Manager Core failed to install"
 	fi
@@ -200,7 +224,7 @@ main() {
 
     printf -- "\n%sDone.%s\n\n" "$GREEN" "$RESET"
 
-    [ -s "$HOME/.zshrc" ] && \. "$HOME/.zshrc"
+#    [ -s "$HOME/.zshrc" ] && \. "$HOME/.zshrc"
 }
 
 main "$@"
