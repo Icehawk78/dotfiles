@@ -35,6 +35,10 @@ brew "yarn"                                 # Yarn package manager for Nodejs
 brew "zlib"                                 # Lossless data-compression library
 brew "eugenmayer/dockersync/unox"           # Docker sync daemon
 brew "heroku/brew/heroku"                   # Heroku CLI
+{{- if eq .chezmoi.os "linux" }}
+cask "pass"
+{{- end }}
+
 {{- if eq .chezmoi.os "darwin" }}
 # Mac Specific tools:
 
