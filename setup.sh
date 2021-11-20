@@ -1,5 +1,5 @@
-#!/bin/sh
-# -*-mode:sh-*- vim:ft=shell-script
+#!/bin/bash
+# -*-mode:bash-*- vim:ft=shell-script
 
 # ~/dotfiles.sh
 # =============================================================================
@@ -40,16 +40,22 @@ setup_color() {
 }
 
 import_repo() {
-    repo=$2
-    destination=$3
+    repo=$1
+    destination=$2
     if uname | grep -Eq '^(cygwin|mingw|msys)'; then
         uuid=$(powershell -NoProfile -Command "[guid]::NewGuid().ToString()")
     else
         uuid=$(uuidgen)
     fi
-    TMPFILE=$(mktemp /tmp/dotfiles."${uuid}".tar.gz) || exit 1
-    curl -s -L -o "$TMPFILE" "$repo" || exit 1
-    chezmoi import --strip-components 1 --destination "$destination" "$TMPFILE" || exit 1
+    TMPFILE=$(mktemp /tmp/dotfiles."${uuid}".XXXXX.tar.gz) || {
+	    error "tempfile error"; exit 1
+    }
+    curl -s -L -o "$TMPFILE" "$repo" || {
+	    error "curl error: ${repo}"; exit 1
+    }
+    chezmoi import --strip-components 1 --destination "$destination" "$TMPFILE" || {
+	error "chezmoi import error"; exit 1
+    }
     rm -f "$TMPFILE"
 }
 
@@ -59,7 +65,9 @@ pretty_import() {
     REPO=$3
     DESTINATION=$4
     printf -- "%sInstalling/updating %s: %s...%s\n" "$CYAN" "$PACKAGE_TYPE" "$PACKAGE_NAME" "$RESET"
-    import_repo "$REPO" "$DESTINATION" || { error "Import of ${PACKAGE_NAME} failed" }
+    import_repo "$REPO" "$DESTINATION" || {
+	error "Import of ${PACKAGE_NAME} failed"
+    }
 }
 
 curl_install() {
@@ -71,16 +79,28 @@ setup_dependencies() {
     printf -- "\n%sSetting up dependencies:%s\n\n" "$BOLD" "$RESET"
 
     # Install Homebrew if it's missing
-    command_exists brew || { curl_install "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh" }
-    command_exists brew || { error "Brew failed to install." }
-    command_exists chezmoi || { brew install chezmoi }
-    command_exists chezmoi || { error "chezmoi install failed" }
+    command_exists brew || {
+	curl_install "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+    }
+    command_exists brew || {
+	error "Brew failed to install."
+    }
+    command_exists chezmoi || {
+	brew install chezmoi
+    }
+    command_exists chezmoi || {
+	error "chezmoi install failed"
+    }
 }
 
 setup_main() {
-    # Install chezmoi if it's missing
+    # Initialize or update chezmoi
     printf -- "%sInitializing/updating dotfiles with chezmoi...%s\n" "$CYAN" "$RESET"
-    chezmoi init Icehawk78 --apply
+    if [ -d ~/.local/share/chezmoi/.git ]; then
+        chezmoi apply
+    else
+        chezmoi init Icehawk78 --apply
+    fi
 
     # Install Homebrew packages
     printf -- "%sInstalling/updating apps using Homebrew...%s\n" "$CYAN" "$RESET"
@@ -88,18 +108,27 @@ setup_main() {
 }
 
 setup_prompts() {
-    printf -- "\n%Setting up zsh and related tools:%S\n\n" "$BOLD" "$RESET"
+    printf -- "\n%sSetting up zsh and related tools:%s\n\n" "$BOLD" "$RESET"
     
     # Install Zsh/Oh-My-Zsh if it's missing, and set it as the default shell
-    command_exists zsh || { brew install zsh }
-    if [ command_exists zsh ]; then
-        command_exists omz || { curl_install "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh" }
-        command_exists omz || { "Oh-My-Zsh failed to install."; exit 1 }
+    command_exists zsh || {
+	printf -- "%sInstalling zsh...%s\n" "$PURPLE" "$RESET"
+	brew install zsh 
+    }
+    if command_exists zsh; then
+        [ -d ~/.oh-my-zsh ] || { 
+	    printf -- "%sInstalling Oh-My-Zsh\n%s" "$PURPLE" "$RESET"
+	    curl_install "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        }
+        [ -d ~/.oh-my-zsh ] || {
+	    error "Oh-My-Zsh failed to install."
+        }
     else
         error "zsh failed to install."
-        exit 1
     fi
+}
 
+setup_plugins() {
     # Install Oh-My-Zsh plugins
     DESCRIPTION="Zsh plugin"
     DESTINATION="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins"
@@ -118,16 +147,20 @@ setup_prompts() {
 setup_devtools() {
     printf -- "\n%sSetting up development tools:%s\n\n" "$BOLD" "$RESET"
 
-    command_exists git || { error "git is not installed" }
+    command_exists git || {
+	error "git is not installed"
+    }
     command_exists git-credential-manager-core || {
-	if [ command_exists dpkg ]; then
+	if command_exists dpkg; then
 	    latest_gcm_deb=curl -s  -H "Accept: application/vnd.github.v3+json"   https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest | grep 'url' | grep '.deb' | sed -E 's/^.+?": "(.+?)".+?$/\1/g'
             curl_install $latest_gcm_deb
 	else
 	    error "Git Credential Manager Core failed to install"
 	fi
     }
-    command_exists asdf || { error "asdf is not installed" }
+    command_exists asdf || {
+	error "asdf is not installed"
+    }
 
     printf -- "%sInstalling/updating ASDF plugins...%s\n" "$CYAN" "$RESET"
     asdf plugin add nodejs
@@ -162,6 +195,7 @@ main() {
     setup_dependencies
     setup_prompts
     setup_main
+    setup_plugins
     setup_devtools
 
     printf -- "\n%sDone.%s\n\n" "$GREEN" "$RESET"
