@@ -163,17 +163,17 @@ setup_devtools() {
     }
 
     printf -- "%sInstalling/updating ASDF plugins...%s\n" "$CYAN" "$RESET"
-    asdf plugin add nodejs
-    asdf plugin add python
-    asdf plugin add ruby
+    asdf plugin add nodejs || true
+    asdf plugin add python || true
+    asdf plugin add ruby || true
     asdf plugin update --all
 
     printf -- "%sImporting PGP keyrings for ASDF plugins...%s\n" "$CYAN" "$RESET"
     "$HOME"/.asdf/plugins/nodejs/bin/import-release-team-keyring
 
-    asdf install nodejs latest
-    asdf install ruby latest
-    asdf install python latest
+    asdf install nodejs latest || true
+    asdf install ruby latest || true
+    asdf install python latest || true
     asdf global nodejs latest
     asdf global ruby latest
     asdf global python latest
@@ -195,7 +195,7 @@ main() {
     setup_dependencies
     setup_prompts
     setup_main
-    setup_plugins
+#    setup_plugins
     setup_devtools
 
     printf -- "\n%sDone.%s\n\n" "$GREEN" "$RESET"
