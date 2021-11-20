@@ -118,8 +118,16 @@ setup_prompts() {
 setup_devtools() {
     printf -- "\n%sSetting up development tools:%s\n\n" "$BOLD" "$RESET"
 
-    command_exists git || { error "git is not installed"; exit 1 }
-    command_exists asdf || { error "asdf is not installed"; exit 1 }
+    command_exists git || { error "git is not installed" }
+    command_exists git-credential-manager-core || {
+	if [ command_exists dpkg ]; then
+	    latest_gcm_deb=curl -s  -H "Accept: application/vnd.github.v3+json"   https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest | grep 'url' | grep '.deb' | sed -E 's/^.+?": "(.+?)".+?$/\1/g'
+            curl_install $latest_gcm_deb
+	else
+	    error "Git Credential Manager Core failed to install"
+	fi
+    }
+    command_exists asdf || { error "asdf is not installed" }
 
     printf -- "%sInstalling/updating ASDF plugins...%s\n" "$CYAN" "$RESET"
     asdf plugin add nodejs

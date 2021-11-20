@@ -14,9 +14,9 @@ tap "homebrew/bundle"
 tap "homebrew/cask"
 tap "homebrew/core"
 tap "homebrew/services"
-tap "twpayne/taps"
 
 brew "asdf"                                 # Extendable version manager
+brew "chezmoi"
 brew "colordiff"                            # Colour-highlighted diff output
 brew "direnv"                               # Directory specific env variables
 brew "geoip"                                # Geographic IP lookup
@@ -35,9 +35,10 @@ brew "yarn"                                 # Yarn package manager for Nodejs
 brew "zlib"                                 # Lossless data-compression library
 brew "eugenmayer/dockersync/unox"           # Docker sync daemon
 brew "heroku/brew/heroku"                   # Heroku CLI
-brew "twpayne/taps/chezmoi"                 # Chezmoi dotfiles manager
 {{- if eq .chezmoi.os "darwin" }}
 # Mac Specific tools:
+
+tap "microsoft/git"
 
 brew "telnet"
 
@@ -45,6 +46,7 @@ cask "android-platform-tools"               # Android SDK platform-tools
 cask "android-studio"
 cask "barrier"
 cask "clocker"
+cask "git-credential-manager-core"
 cask "intellij-idea"
 cask "iterm2"
 cask "font-dejavusansmono-nerd-font-mono"   # DejaVu Sans Mono Nerd Font
