@@ -178,6 +178,9 @@ setup_devtools() {
 	if command_exists dpkg; then
 	    url=`curl -sH "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest" | grep "url" | grep ".deb" | sed -E 's/^.+?": "(.+?)".+?$/\1/g'`
             curl_dpkg $url
+            git-credential-manager-core configure
+            
+            git config --global credential.credentialStore gpg
 	else
 	    error "Git Credential Manager Core failed to install"
 	fi
