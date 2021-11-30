@@ -224,7 +224,8 @@ main() {
     setup_dependencies
     setup_prompts
     setup_main
-#    setup_plugins
+    # Handled in .chezmoiexternal now
+    #setup_plugins
     setup_devtools
 
     printf -- "\n%sDone.%s\n\n" "$GREEN" "$RESET"
