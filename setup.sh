@@ -191,6 +191,7 @@ setup_devtools() {
 
     printf -- "%sInstalling/updating ASDF plugins...%s\n" "$CYAN" "$RESET"
     asdf plugin add nodejs || true
+    asdf plugin add yarn || true
     asdf plugin add python || true
     asdf plugin add ruby || true
     asdf plugin update --all
@@ -199,6 +200,7 @@ setup_devtools() {
     "$HOME"/.asdf/plugins/nodejs/bin/import-release-team-keyring
 
     asdf install nodejs latest || true
+    asdf install yarn latest || true
     asdf install ruby latest || true
     asdf install python latest || true
     asdf global nodejs latest
