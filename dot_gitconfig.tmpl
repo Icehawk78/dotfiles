@@ -43,7 +43,12 @@
     untrackedCache = true
 
 [credential]
+    helper = 
     helper = credential-manager
+    helper = /usr/local/share/gcm-core/git-credential-manager-core
+    {{ id eq .chezmoi.os "linux" -}}
+    credentialStore = "gpg"
+    {{- end }}
 
 [diff]
     # List submodules commits in the range.
@@ -122,3 +127,7 @@
     # Include extra configuration (if any).
     path = .gitconfig_local
 
+{{ if eq .device_owner "kroger" -}}
+[credential "https://dev.azure.com"]
+    useGttpPath = true
+{{- end }}

@@ -157,7 +157,7 @@ setup_plugins() {
     DESCRIPTION="Zsh plugin"
     DESTINATION="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins"
     declare -A PLUGINS
-    PLUGINS["zsh-autosuggestions"]="https://github.com/robbyrussell/oh-my-zsh/archive/master.tar.gz"
+    PLUGINS["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions/archive/master.tar.gz"
     PLUGINS["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz"
 
     for key in "${!PLUGINS[@]}"; do
