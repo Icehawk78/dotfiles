@@ -39,40 +39,9 @@ setup_color() {
     fi
 }
 
-import_repo() {
-    repo=$1
-    destination=$2
-    if uname | grep -Eq '^(cygwin|mingw|msys)'; then
-        uuid=$(powershell -NoProfile -Command "[guid]::NewGuid().ToString()")
-    else
-        uuid=$(uuidgen)
-    fi
-    TMPFILE=$(mktemp /tmp/dotfiles."${uuid}".XXXXX.tar.gz) || {
-	    error "tempfile error"; exit 1
-    }
-    curl -s -L -o "$TMPFILE" "$repo" || {
-	    error "curl error: ${repo}"; exit 1
-    }
-    chezmoi import --strip-components 1 --destination "$destination" "$TMPFILE" || {
-	error "chezmoi import error"; exit 1
-    }
-    rm -f "$TMPFILE"
-}
-
-pretty_import() {
-    PACKAGE_NAME=$1
-    PACKAGE_TYPE=$2
-    REPO=$3
-    DESTINATION=$4
-    printf -- "%sInstalling/updating %s: %s...%s\n" "$CYAN" "$PACKAGE_TYPE" "$PACKAGE_NAME" "$RESET"
-    import_repo "$REPO" "$DESTINATION" || {
-	error "Import of ${PACKAGE_NAME} failed"
-    }
-}
-
 curl_install() {
     url=$1
-    echo "Curl install:" 
+    echo "Curl install:"
     echo $url
     /bin/bash -c "$(curl -fsSL ${url})"
 }
@@ -133,14 +102,14 @@ setup_main() {
 
 setup_prompts() {
     printf -- "\n%sSetting up zsh and related tools:%s\n\n" "$BOLD" "$RESET"
-    
+
     # Install Zsh/Oh-My-Zsh if it's missing, and set it as the default shell
     command_exists zsh || {
 	printf -- "%sInstalling zsh...%s\n" "$PURPLE" "$RESET"
-	brew install zsh 
+	brew install zsh
     }
     if command_exists zsh; then
-        [ -d ~/.oh-my-zsh ] || { 
+        [ -d ~/.oh-my-zsh ] || {
 	    printf -- "%sInstalling Oh-My-Zsh\n%s" "$PURPLE" "$RESET"
 	    curl_install "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
         }
@@ -150,21 +119,6 @@ setup_prompts() {
     else
         error "zsh failed to install."
     fi
-}
-
-setup_plugins() {
-    # Install Oh-My-Zsh plugins
-    DESCRIPTION="Zsh plugin"
-    DESTINATION="${ZSH_CUSTOM:-${HOME}/.oh-my-zsh/custom}/plugins"
-    declare -A PLUGINS
-    PLUGINS["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions/archive/master.tar.gz"
-    PLUGINS["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz"
-
-    for key in "${!PLUGINS[@]}"; do
-	pretty_import "$key" "$DESCRIPTION" "${PLUGINS[$key]}" "$DESTINATION/$key"
-    done
-
-    pretty_import "External rc" "Ultimate vimrc" "https://github.com/amix/vimrc/archive/master.tar.gz" "${HOME}/.vim_runtime"
 }
 
 # shellcheck source=/dev/null
@@ -179,7 +133,7 @@ setup_devtools() {
 	    url=`curl -sH "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest" | grep "url" | grep ".deb" | sed -E 's/^.+?": "(.+?)".+?$/\1/g'`
             curl_dpkg $url
             git-credential-manager-core configure
-            
+
             git config --global credential.credentialStore gpg
 	else
 	    error "Git Credential Manager Core failed to install"
@@ -208,14 +162,6 @@ setup_devtools() {
     asdf global python latest
 }
 
-setup_dotfiles() {
-    printf -- "\n%sSetting up dotfiles:%s\n\n" "$BOLD" "$RESET"
-
-    printf -- "%sUpdating dotfiles at destination...%s\n" "$CYAN" "$RESET"
-    chezmoi init Icehawk78 --apply
-
-}
-
 main() {
     setup_color
 
@@ -224,8 +170,6 @@ main() {
     setup_dependencies
     setup_prompts
     setup_main
-    # Handled in .chezmoiexternal now
-    #setup_plugins
     setup_devtools
 
     printf -- "\n%sDone.%s\n\n" "$GREEN" "$RESET"
