@@ -8,7 +8,7 @@
 
 tap "adoptopenjdk/openjdk"
 tap "buo/cask-upgrade"
-tap "eugenmayer/dockersync"
+#tap "eugenmayer/dockersync"
 tap "heroku/brew"
 tap "homebrew/bundle"
 tap "homebrew/cask"
@@ -33,7 +33,7 @@ brew "wget"                                 # Web content downloader
 brew "xz"
 brew "yarn"                                 # Yarn package manager for Nodejs
 brew "zlib"                                 # Lossless data-compression library
-brew "eugenmayer/dockersync/unox"           # Docker sync daemon
+#brew "eugenmayer/dockersync/unox"           # Docker sync daemon
 brew "heroku/brew/heroku"                   # Heroku CLI
 {{- if eq .chezmoi.os "linux" }}
 cask "pass"
