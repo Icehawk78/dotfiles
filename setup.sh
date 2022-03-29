@@ -148,6 +148,7 @@ setup_devtools() {
     asdf plugin add yarn || true
     asdf plugin add python || true
     asdf plugin add ruby || true
+    asdf plugin add crystal || true
     asdf plugin update --all
 
     printf -- "%sImporting PGP keyrings for ASDF plugins...%s\n" "$CYAN" "$RESET"
@@ -157,9 +158,11 @@ setup_devtools() {
     asdf install yarn latest || true
     asdf install ruby latest || true
     asdf install python latest || true
+    asdf install crystal latest || true
     asdf global nodejs latest
     asdf global ruby latest
     asdf global python latest
+    asdf global crystal latest
 }
 
 main() {
