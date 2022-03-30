@@ -12,19 +12,19 @@ ZSH_THEME="jonathan"
 ENABLE_CORRECTION="true"
 HIST_STAMPS="yyyy-mm-dd"
 plugins=(
-    rails 
-    ruby 
-    git 
-    colorize 
+    rails
+    ruby
+    git
+    colorize
     docker-compose
     dotenv
     extract
     gh
     history
-    asdf 
-    node 
-    npm 
-    yarn 
+    asdf
+    node
+    npm
+    yarn
     colored-man-pages
     z
     zsh-syntax-highlighting
@@ -66,7 +66,7 @@ ASDF_DIR="${ASDF_DIR:-$HOME/.asdf}"
 if [[ ! -d $ASDF_DIR ]] && type brew &> /dev/null; then
     ASDF_DIR="$(brew --prefix asdf)"
 fi
-[ -s "$ASDF_DIR/asdf.sh" ] && \. "$ASDF_DIR/libexec/asdf.sh"
+[ -s "$ASDF_DIR/asdf.sh" ] && \. "$ASDF_DIR/asdf.sh"
 
 # Provide ASDF completions (already loaded if using Homebrew).
 if [ -s "$ASDF_DIR/completions" ]; then
