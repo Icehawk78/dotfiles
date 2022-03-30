@@ -151,8 +151,8 @@ setup_devtools() {
     asdf plugin add crystal || true
     asdf plugin update --all
 
-    printf -- "%sImporting PGP keyrings for ASDF plugins...%s\n" "$CYAN" "$RESET"
-    "$HOME"/.asdf/plugins/nodejs/bin/import-release-team-keyring
+    # printf -- "%sImporting PGP keyrings for ASDF plugins...%s\n" "$CYAN" "$RESET"
+    # "$HOME"/.asdf/plugins/nodejs/bin/import-release-team-keyring
 
     asdf install nodejs latest || true
     asdf install yarn latest || true

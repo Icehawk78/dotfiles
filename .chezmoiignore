@@ -11,6 +11,7 @@
 LICENSE
 README.md
 com.googlecode.iterm2.plist
+.vim_runtime
 
 # Ignore non-macOS files.
 {{ if ne .chezmoi.os "darwin" -}}
