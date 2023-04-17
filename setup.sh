@@ -73,16 +73,16 @@ setup_dependencies() {
 
     # Install Homebrew if it's missing
     command_exists brew || {
-	curl_install "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+        curl_install "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
     }
     command_exists brew || {
-	error "Brew failed to install."
+        error "Brew failed to install."
     }
     command_exists chezmoi || {
-	brew install chezmoi
+        brew install chezmoi
     }
     command_exists chezmoi || {
-	error "chezmoi install failed"
+        error "chezmoi install failed"
     }
 }
 
@@ -110,11 +110,11 @@ setup_prompts() {
     }
     if command_exists zsh; then
         [ -d ~/.oh-my-zsh ] || {
-	    printf -- "%sInstalling Oh-My-Zsh\n%s" "$PURPLE" "$RESET"
-	    curl_install "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+            printf -- "%sInstalling Oh-My-Zsh\n%s" "$PURPLE" "$RESET"
+                    curl_install "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
         }
         [ -d ~/.oh-my-zsh ] || {
-	    error "Oh-My-Zsh failed to install."
+            error "Oh-My-Zsh failed to install."
         }
     else
         error "zsh failed to install."
@@ -126,21 +126,23 @@ setup_devtools() {
     printf -- "\n%sSetting up development tools:%s\n\n" "$BOLD" "$RESET"
 
     command_exists git || {
-	error "git is not installed"
+	    error "git is not installed"
     }
+
     command_exists git-credential-manager-core || {
-	if command_exists dpkg; then
-	    url=`curl -sH "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest" | grep "url" | grep ".deb" | sed -E 's/^.+?": "(.+?)".+?$/\1/g'`
+        if command_exists dpkg; then
+            url=`curl -sH "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/gitcredentialmanager/git-credential-manager/releases/latest" | grep "url" | grep ".deb" | sed -E 's/^.+?": "(.+?)".+?$/\1/g'`
             curl_dpkg $url
             git-credential-manager-core configure
 
             git config --global credential.credentialStore gpg
-	else
-	    error "Git Credential Manager Core failed to install"
-	fi
+        else
+            error "Git Credential Manager Core failed to install"
+        fi
     }
+
     command_exists asdf || {
-	error "asdf is not installed"
+        error "asdf is not installed"
     }
 
     printf -- "%sInstalling/updating ASDF plugins...%s\n" "$CYAN" "$RESET"
@@ -163,6 +165,19 @@ setup_devtools() {
     asdf global ruby latest
     asdf global python latest
     asdf global crystal latest
+
+    # Install/Update ultimate vimrc
+    [ -d ~/.vim_runtime ] || {
+        git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
+        sh ~/.vim_runtime/install_awesome_vimrc.sh
+    }
+    if [ -d ~/.vim_runtime ] && command_exists python; then
+        cd ~/.vim_runtime
+        git reset --hard
+        git clean -d --force
+        git pull --rebase
+        python update_plugins.py
+    fi
 }
 
 main() {
